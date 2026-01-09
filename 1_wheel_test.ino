@@ -5,7 +5,7 @@
 
 #include <Servo.h>
 
-// 1. SETTINGS (Teachers: Adjust MAX_POWER here to slow down the whole class)
+// 1. SETTINGS (Adjust MAX_POWER here to slow down the whole class)
 int MAX_POWER = 10; // 100% power in the code will only be 30% speed in real life.
 
 Servo leftMotor;
