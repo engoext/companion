@@ -6,7 +6,7 @@
 #include <Servo.h>
 
 // --- CONFIGURATION ---
-int MAX_POWER = 90;      // 0 to 90 (30 is safe, 90 is fast)
+int MAX_POWER = 20;      // Use the same speed limit from Sketch 1
 int stopDistance = 25;   // The distance (cm) to trigger a turn
 
 Servo leftMotor;
@@ -15,20 +15,11 @@ const int trigPin = 2;
 const int echoPin = 3;
 
 void setup() {
-  // Use the working Pins from Sketch 1
-  leftMotor.attach(10); 
+  leftMotor.attach(10);
   rightMotor.attach(9);
-  
-  // Arm the servos with a stop signal
-  leftMotor.write(90); 
-  rightMotor.write(90);
-  delay(1); 
-
   pinMode(trigPin, OUTPUT);
   pinMode(echoPin, INPUT);
-  
   Serial.begin(9600);
-  Serial.println("Obstacle Avoidance System Active...");
 }
 
 void loop() {
@@ -45,11 +36,12 @@ void loop() {
     setMotorSpeed(0, 0);   
     delay(400);
     
-    // Step B: Back up slightly
+    // Step B: Back up slightly (Prevents getting stuck)
     setMotorSpeed(-60, -60);
     delay(500);
     
-    // Step C: Turn/Spin 
+    // Step C: Turn/Spin (Left -100, Right 100)
+    // Adjust the delay until it makes a roughly 90-degree turn
     setMotorSpeed(-100, 100); 
     delay(700);
     
@@ -59,11 +51,11 @@ void loop() {
 
   } else {
     // --- ACT: PATH IS CLEAR ---
-    // Robot drives forward
+    // Use your calibrated straight-line speeds here
     setMotorSpeed(100, 100); 
   }
   
-  delay(20); // The "Breathing Room" delay for Nano R4 stability
+  delay(30); // Short delay for sensor stability
 }
 
 // --- HELPER TOOLS ---
@@ -74,19 +66,15 @@ int getDistance() {
   digitalWrite(trigPin, HIGH);
   delayMicroseconds(10);
   digitalWrite(trigPin, LOW);
-  long duration = pulseIn(echoPin, HIGH, 30000); 
+  long duration = pulseIn(echoPin, HIGH, 30000); // 30ms timeout for range
   return duration * 0.034 / 2;
 }
 
 void setMotorSpeed(int left, int right) {
   left = constrain(left, -100, 100);
   right = constrain(right, -100, 100);
-
-  // Correct Mapping from your working Sketch 1
-  // leftPower 100 -> 90 + MAX | rightPower 100 -> 90 - MAX
   int leftValue = map(left, -100, 100, 90 - MAX_POWER, 90 + MAX_POWER);
   int rightValue = map(right, -100, 100, 90 + MAX_POWER, 90 - MAX_POWER);
-
   leftMotor.write(leftValue);
   rightMotor.write(rightValue);
 }
